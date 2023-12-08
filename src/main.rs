@@ -1,14 +1,20 @@
 mod device_widget;
-
-use gtk::prelude::*;
-use gtk::{glib, Application, Window, Button, Label, Grid, Image, HeaderBar, Box};
+mod device;
+mod api_handler;
+mod main_window;
 
 use device_widget::DeviceWidget;
+use gtk::prelude::*;
+use gtk::{glib, Application, Grid};
+
+//use device_widget::DeviceWidget;
+use api_handler::get_devices;
 
 
 const APP_ID: &str = "ax.smartel.ui";
 
-fn main() -> glib::ExitCode {
+#[tokio::main]
+async fn main() -> glib::ExitCode {
     // Initialize GTK
     gtk::init().expect("Failed to initialize GTK!");
 
@@ -16,55 +22,33 @@ fn main() -> glib::ExitCode {
         .application_id(APP_ID)
         .build();
 
-    app.connect_activate(build_main_window);
-
-    app.run()
-}
-
-fn build_main_window(app: &Application) {
-    let window = Window::builder()
-        .title("Smart El")
-        .build();
-
-    let header_bar = HeaderBar::builder()
-        .show_title_buttons(true)
-        .build();
-
-    let pref_button = build_custom_button("Preferences", "resources/icons/setting.png");
-
-    let add_button = build_custom_button("Add", "resources/icons/add.png");
-
     let top_layout = Grid::builder()
         .column_homogeneous(true)
         .row_homogeneous(true)
         .build();
 
-    header_bar.pack_end(&pref_button);
-    header_bar.pack_start(&add_button);
-    
-    window.set_titlebar(Some(&header_bar));
-    window.set_child(Some(&top_layout));
+    add_devices(&top_layout).await;
 
-    app.add_window(&window);
-    window.present();
+    app.connect_activate(move |app| {
+        main_window::build_main_window(&app, &top_layout)
+    });
+
+    app.run()    
 }
 
-fn build_custom_button(text: &str, path: &str) -> Button {
-    let image = Image::from_file(path);
+async fn add_devices(layout: &Grid) {
+    let devices = get_devices().await;
+    let mut index = 0;
+    let mut column_index = 0;
 
-    let label = Label::new(Some(text));
-
-    let container = Box::builder()
-        .orientation(gtk::Orientation::Horizontal)
-        .spacing(5)
-        .build();
-
-    let button = Button::new();
-
-    container.append(&label);
-    container.append(&image);
-
-    button.set_child(Some(&container));
-
-    return button;
+    for dev in devices {
+        println!("Adding device: {}", dev.name);
+        let device = DeviceWidget::new(dev, None);
+        layout.attach(&device.frame, index, column_index, 1, 1);
+        index +=1;
+        if index > 2 {
+            column_index +=1;
+            index = 0;
+        }
+    }
 }
