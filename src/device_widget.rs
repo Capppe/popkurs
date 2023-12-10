@@ -1,9 +1,13 @@
 use gtk::prelude::*;
-use gtk::{Label, Grid, Image, Frame, Align, Box};
+use gtk::{Label, Grid, Image, Frame, Align, Box, Button};
 use crate::device::Device;
 
+#[derive(Clone)]
 pub struct DeviceWidget {
     pub frame: Frame,
+    pub state_value: Label,
+    pub tot_kwh_value: Label,
+    pub dev_button: Button,
 }
 
 impl DeviceWidget {
@@ -37,6 +41,14 @@ pub fn new(dev: Device, icon: Option<&str>) -> Self {
         .label(dev.name.as_str())
         .build();
 
+    let dev_button = Button::builder()
+        .child(&dev_name)
+        .margin_end(1)
+        .margin_top(8)
+        .margin_bottom(8)
+        .margin_start(1)
+        .build();
+
     let state_label = Label::new(Some("Power"));
     let tot_kwh_label = Label::new(Some("Total consumption"));
 
@@ -50,15 +62,15 @@ pub fn new(dev: Device, icon: Option<&str>) -> Self {
     kwh_layout.append(&tot_kwh_label);
     kwh_layout.append(&tot_kwh_value);
 
-    layout.attach(&dev_name, 0, 0, 1, 1);
-    layout.attach(&dev_image, 0, 1, 1, 1);
-    layout.attach(&state_layout, 0, 2, 1, 1);
+    //layout.attach(&detailed_info, 0, 0, 1, 1);
+    layout.attach(&dev_button, 0, 0, 1, 1);
+    layout.attach(&dev_image, 0, 2, 1, 1);
+    layout.attach(&state_layout, 0, 3, 1, 1);
     layout.attach(&kwh_layout, 0, 4, 1, 1);
 
     frame.set_child(Some(&layout));
 
-    Self { frame }
+    Self { frame, state_value, tot_kwh_value, dev_button }
 }
 
 }
-

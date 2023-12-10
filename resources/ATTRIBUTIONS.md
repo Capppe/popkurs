@@ -13,4 +13,4 @@
     - Artist: [wanicon](https://www.flaticon.com/authors/wanicon)
 
 ## License
-    - [Flaticon License](https://media.flaticon.com/license/license.pdf)
+[Flaticon License](https://media.flaticon.com/license/license.pdf)

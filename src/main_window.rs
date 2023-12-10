@@ -13,15 +13,10 @@ pub fn build_main_window(app: &Application, top_layout: &Grid) {
     let pref_button = build_custom_button("Preferences", "resources/icons/setting.png");
 
     let add_button = build_custom_button("Add", "resources/icons/add.png");
-/*
-    let top_layout = Grid::builder()
-        .column_homogeneous(true)
-        .row_homogeneous(true)
-        .build();
-*/
+
     header_bar.pack_end(&pref_button);
     header_bar.pack_start(&add_button);
-    
+ 
     window.set_titlebar(Some(&header_bar));
     window.set_child(Some(top_layout));
 

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Device {
     pub id: u32,
     pub name: String,
@@ -9,7 +9,7 @@ pub struct Device {
     pub consumption_data: Vec<ConsumptionData>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ConsumptionData {
     pub timestamp: String,
     pub power_usage: f64,
