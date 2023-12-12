@@ -1,6 +1,7 @@
 use reqwest;
 use crate::device::Device;
 
+//Makes api call to get all available devices
 pub async fn get_devices() -> Vec<Device> {
     match api_call(None).await {
         Ok(body) => deserialize(body.as_str()),
@@ -9,6 +10,7 @@ pub async fn get_devices() -> Vec<Device> {
 
 }
 
+//Makes api call to get a single device by id
 pub async fn get_device(id: u32) -> Result<Device, reqwest::Error> {
     let url = "http://localhost:3000/devices/".to_owned() + &id.to_string();
     match api_call(Some(url.as_str())).await {
