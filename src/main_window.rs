@@ -7,11 +7,12 @@ use glib::clone;
 
 use crate::custom_widgets::{details_widget::DetailsWidget, device_widget::DeviceWidget};
 use crate::api_handler::{get_device, get_devices};
-use crate::device;
 
 //Needed for multithreading with GTK
 static RUNTIME: Lazy<Runtime> = 
     Lazy::new(|| Runtime::new().expect("Setting up tokio runtime needs to succeed"));
+
+const UPDATE_FREQ: u64 = 5;
 
 pub struct MainWindow {
     pub window: Window,
@@ -24,10 +25,12 @@ impl MainWindow {
     pub fn new() -> Self {
         let window = Window::builder()
             .title("Smart El")
+            .css_classes(["window"])
             .build();
 
         let header_bar = HeaderBar::builder()
             .show_title_buttons(true)
+            // .css_classes(["header_bar"])
             .build();
 
         let top_layout = Box::builder()
@@ -59,8 +62,8 @@ impl MainWindow {
         Self { window, top_layout, device_layout, details_sidebar }
     }
 
-    pub fn show(app: &Application, window: Window) {
-        app.add_window(&window);
+    pub fn show(app: &Application, window: &Window) {
+        app.add_window(window);
         window.present();
     }
 
@@ -75,7 +78,7 @@ impl MainWindow {
             let device = DeviceWidget::new(dev, None);
 
             device.frame.set_hexpand(true);
-            layout.attach(&device.frame, index, column_index, 1, 1);
+            layout.attach(&device.dev_button, index, column_index, 1, 1);
             index +=1;
             if index > 2 {
                 column_index +=1;
@@ -103,11 +106,11 @@ impl MainWindow {
         }
     }
 
-
     fn build_custom_button(text: &str, path: &str) -> Button {
         let image = Image::from_file(path);
 
         let label = Label::new(Some(text));
+        // label.set_css_classes(&["label"]);
 
         let container = Box::builder()
             .orientation(gtk::Orientation::Horizontal)
@@ -120,6 +123,7 @@ impl MainWindow {
         container.append(&image);
 
         button.set_child(Some(&container));
+        // button.set_css_classes(&["button"]);
 
         return button;
     }
@@ -132,7 +136,7 @@ fn spawn_updater_thread(device_id: u32, device_widget: DeviceWidget) {
     
     RUNTIME.spawn(clone! (@strong sender => async move {
         loop {
-            std::thread::sleep(Duration::from_secs(5));
+            std::thread::sleep(Duration::from_secs(UPDATE_FREQ));
             let response = get_device(device_id).await;
             sender.send(response).await.expect("The channel needs to be open");
         }
@@ -141,18 +145,9 @@ fn spawn_updater_thread(device_id: u32, device_widget: DeviceWidget) {
     glib::spawn_future_local(async move {
         while let Ok(response) = reciever.recv().await {
             if let Ok(response) = response {
-                update_info(&device_widget, response);
+                DeviceWidget::update_info(&device_widget, &response);
             }
         }
     });
 
-}
-
-//Updates the devices in the UI with new data
-fn update_info(device: &DeviceWidget, new_data: device::Device) {
-    let tot_kwh = format!("{:.4} KwH", &new_data.total_consumption.to_string());
-    let power_state = &new_data.power;
-
-    device.tot_kwh_value.set_text(&tot_kwh);
-    device.state_value.set_text(power_state);
 }

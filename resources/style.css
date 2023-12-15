@@ -1,0 +1,65 @@
+/* generic */
+.label {
+  color: #f2f2f2;
+}
+
+.button {
+  background-image: none;
+}
+
+.window {
+  background-color: #121212;
+  color: #121212;
+}
+
+.header_bar {
+  background-image: none;
+  background-color: #121212;
+  border-bottom: 1px solid #f2f2f2;
+}
+/* details_widget.rs */
+.frame {
+  background-color: #3f3f3f;
+}
+
+.timestamp_list {
+  background-color: #575757;
+}
+
+.close_button {
+  color: #f24444;
+  font-weight: bold;
+  background-color: #575757;
+  border: 1px solid black;
+}
+
+.close_button:hover {
+  opacity: 0.9;
+}
+
+.name_label {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.name_and_close {
+  border-bottom: 1px solid black;
+}
+
+.total_consumption_label {
+  font-weight: bold;
+}
+
+.timestamps_label {
+  font-weight: bold;
+}
+
+/* device_widget.rs */
+.device_button {
+  background-color: #282828;
+  border-radius: 15px;
+}
+
+.device_button:hover {
+  opacity: 0.7;
+}
